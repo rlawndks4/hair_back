@@ -56,19 +56,28 @@ const reservationCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
             const {
                 date,
                 time,
+                user_name,
                 shop_id,
-                user_id,
+                note,
             } = req.body;
+            if(is_manager){
+
+            }
+            let user = await pool.query(`SELECT * FROM users WHERE user_name=? `,[user_name]);
+            user = user?.result[0];
+            if(!user){
+                return response(req, res, -100, "유저가 존재하지 않습니다.", false)
+            }
             let files = settingFiles(req.files);
             let obj = {
                 date,
                 time,
                 shop_id,
-                user_id,
+                user_id: user?.id,
+                note
             };
 
             obj = { ...obj, ...files };
