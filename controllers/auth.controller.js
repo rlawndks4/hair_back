@@ -18,7 +18,7 @@ const authCtrl = {
             if (!user) {
                 return response(req, res, -100, "가입되지 않은 회원입니다.", {})
             }
-            if (is_manager && user.level <= 10) {
+            if (is_manager && user.level < 10) {
                 return response(req, res, -100, "가입되지 않은 회원입니다.", {})
             }
             if(user?.status == 1){
