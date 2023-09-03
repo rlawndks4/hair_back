@@ -7,8 +7,9 @@ import 'dotenv/config';
 
 const table_name = 'posts';
 const post_category_list = [
-    '공지사항',
     '후기',
+    '공지사항',
+    '업장정보소개'
 ]
 const postCtrl = {
     list: async (req, res, next) => {
@@ -56,23 +57,20 @@ const postCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
             const {
                 title,
                 note,
-                user_id,
-                shop_id=-1,
-                type,
+                shop_id,
+                type='0',
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
                 title,
                 note,
-                user_id,
                 shop_id,
-                type
+                type,
+                user_id: decode_user?.id
             };
-            
             obj = { ...obj, ...files };
 
             let result = await insertQuery(`${table_name}`, obj);
@@ -91,14 +89,19 @@ const postCtrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             
             const {
-                id,
                 title,
                 note,
+                shop_id,
+                type='0',
+                id,
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
                 title,
                 note,
+                shop_id,
+                type,
+                user_id: decode_user?.id
             };
             obj = { ...obj, ...files };
 
