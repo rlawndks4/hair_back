@@ -93,11 +93,11 @@ const userCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const {
-                user_name, nickname, level, phone_num, profile_img, note, id, shop_id=0
+                user_name, nickname, phone_num, profile_img, note, id, shop_id=0
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
-                user_name, nickname, level, phone_num, profile_img, note, shop_id
+                user_name, nickname, phone_num, profile_img, note, shop_id
             };
             obj = { ...obj, ...files };
             let result = await updateQuery(`${table_name}`, obj, id);
