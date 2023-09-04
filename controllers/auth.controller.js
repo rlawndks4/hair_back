@@ -61,7 +61,6 @@ const authCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
             let {
                 user_name,
                 user_pw,
@@ -93,7 +92,6 @@ const authCtrl = {
             let result = await insertQuery('users', obj);
             return response(req, res, 100, "success", {})
         } catch (err) {
-            console.log(JSON.stringify(err))
             return response(req, res, -200, err?.message || "서버 에러 발생", false)
         } finally {
 
