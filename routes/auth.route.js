@@ -16,5 +16,8 @@ router
 router
     .route('/sign-out')
     .post(authCtrl.signOut);
+router
+    .route('/update')
+    .post(authCtrl.updateMyInfo);
 
 export default router;

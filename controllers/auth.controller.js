@@ -2,7 +2,7 @@
 import { pool } from "../config/db.js";
 import { checkIsManagerUrl, returnMoment } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
-import { createHashedPassword, checkLevel, makeUserToken, response, checkDns, lowLevelException } from "../utils.js/util.js";
+import { createHashedPassword, checkLevel, makeUserToken, response, checkDns, lowLevelException, settingFiles } from "../utils.js/util.js";
 import 'dotenv/config';
 
 const authCtrl = {
@@ -10,7 +10,7 @@ const authCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
+
             let { user_name, user_pw } = req.body;
 
             let user = await pool.query(`SELECT * FROM users WHERE user_name=? AND is_delete=0 LIMIT 1`, user_name);
@@ -21,10 +21,10 @@ const authCtrl = {
             if (is_manager && user.level < 10) {
                 return response(req, res, -100, "가입되지 않은 회원입니다.", {})
             }
-            if(user?.status == 1){
+            if (user?.status == 1) {
                 return response(req, res, -100, "승인 대기중입니다.", {})
             }
-            if(user?.status == 2){
+            if (user?.status == 2) {
                 return response(req, res, -100, "로그인 불가 회원입니다.", {})
             }
             user_pw = (await createHashedPassword(user_pw, user.user_salt)).hashedPassword;
@@ -72,6 +72,10 @@ const authCtrl = {
             if (!user_pw) {
                 return response(req, res, -100, "비밀번호를 입력해 주세요.", {});
             }
+            let is_exist_user = await pool.query(`SELECT * FROM users WHERE user_name=? `, [user_name]);
+            if (is_exist_user?.result.length > 0) {
+                return response(req, res, -100, "유저아이디가 이미 존재합니다.", false)
+            }
             let pw_data = await createHashedPassword(user_pw);
             if (!is_manager) {
                 if (level > 0) {
@@ -101,7 +105,7 @@ const authCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
+
             res.clearCookie('token');
             return response(req, res, 100, "success", {})
         } catch (err) {
@@ -115,9 +119,48 @@ const authCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, is_manager ? 1 : 0);
-            
+
 
             return response(req, res, 100, "success", decode_user)
+        } catch (err) {
+            console.log(err)
+            return response(req, res, -200, "서버 에러 발생", false)
+        } finally {
+
+        }
+    },
+    updateMyInfo: async (req, res, next) => {
+        try {
+            let is_manager = await checkIsManagerUrl(req);
+            const decode_user = checkLevel(req.cookies.token, is_manager ? 1 : 0);
+            const {
+               nickname, phone_num, profile_img
+            } = req.body;
+            let files = settingFiles(req.files);
+            let obj = {
+                nickname, phone_num, profile_img 
+            };
+            obj = { ...obj, ...files };
+            let result = await updateQuery(`users`, obj, decode_user?.id);
+            await res.clearCookie('token');
+            let user = await pool.query(`SELECT * FROM users WHERE id=? `, [decode_user?.id]);
+            user = user?.result[0];
+            const token = makeUserToken({
+                id: user.id,
+                user_name: user.user_name,
+                nickname: user.nickname,
+                level: user.level,
+                phone_num: user.phone_num,
+                profile_img: user.profile_img,
+            })
+            await res.cookie("token", token, {
+                httpOnly: true,
+                maxAge: (60 * 60 * 1000) * 3,
+                //sameSite: 'none', 
+                //secure: true 
+            });
+            console.log(123)
+            return response(req, res, 100, "success", {})
         } catch (err) {
             console.log(err)
             return response(req, res, -200, "서버 에러 발생", false)

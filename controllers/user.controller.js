@@ -95,6 +95,13 @@ const userCtrl = {
             const {
                 user_name, nickname, phone_num, profile_img, note, id, shop_id=0
             } = req.body;
+            if(!(decode_user?.level >=40)){
+                return lowLevelException(req, res);
+            }
+            let is_exist_user = await pool.query(`SELECT * FROM ${table_name} WHERE user_name=? `, [user_name]);
+            if (is_exist_user?.result.length > 0) {
+                return response(req, res, -100, "유저아이디가 이미 존재합니다.", false)
+            }
             let files = settingFiles(req.files);
             let obj = {
                 user_name, nickname, phone_num, profile_img, note, shop_id

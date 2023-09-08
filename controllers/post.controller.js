@@ -16,18 +16,23 @@ const postCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            const { type } = req.query;
+            const { type, is_mine } = req.query;
             let columns = [
                 `${table_name}.*`,
                 `users.user_name`,
                 `users.nickname`,
+                `shops.name AS shop_name`,
             ]
             let sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM ${table_name} `;
             sql += ` LEFT JOIN users ON ${table_name}.user_id=users.id `;
+            sql += ` LEFT JOIN shops ON ${table_name}.shop_id=shops.id `;
+            sql += ` WHERE 1=1 `
             if(type){
-                sql += ` WHERE ${table_name}.type=${type} `;
+                sql += ` AND ${table_name}.type=${type} `;
             }
-
+            if(is_mine){
+                sql += ` AND ${table_name}.user_id=${decode_user?.id} `;
+            }
             let data = await getSelectQuery(sql, columns, req.query);
 
             return response(req, res, 100, "success", data);

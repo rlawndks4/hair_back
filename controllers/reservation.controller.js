@@ -13,7 +13,7 @@ const reservationCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             
-            const { } = req.query;
+            const { is_mine } = req.query;
 
             let columns = [
                 `${table_name}.*`,
@@ -67,6 +67,7 @@ const reservationCtrl = {
                 shop_id,
                 note,
             } = req.body;
+            console.log(req.body)
             date = date.replaceAll('-','')
             if(is_manager){
 
