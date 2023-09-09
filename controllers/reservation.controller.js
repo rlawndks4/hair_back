@@ -13,8 +13,8 @@ const reservationCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             
-            const { is_mine } = req.query;
-
+            const { is_mine, date } = req.query;
+            console.log(req.query)
             let columns = [
                 `${table_name}.*`,
                 `users.user_name`,
@@ -24,8 +24,12 @@ const reservationCtrl = {
             let sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM ${table_name} `;
             sql += ` LEFT JOIN users ON ${table_name}.user_id=users.id `;
             sql += ` LEFT JOIN shops ON ${table_name}.shop_id=shops.id `;
+            sql += ` WHERE 1=1 `
             if(decode_user.level < 40){
-                sql += ` WHERE ${table_name}.user_id=${decode_user.id} `;
+                sql += ` AND ${table_name}.user_id=${decode_user.id} `;
+            }
+            if(date){
+                sql += ` AND ${table_name}.date=${date} `;
             }
             let data = await getSelectQuery(sql, columns, req.query);
 
@@ -69,14 +73,13 @@ const reservationCtrl = {
             } = req.body;
             console.log(req.body)
             date = date.replaceAll('-','')
-            if(is_manager){
-
-            }
+            
             let user = await pool.query(`SELECT * FROM users WHERE user_name=? `,[user_name]);
             user = user?.result[0];
             if(!user){
                 return response(req, res, -100, "유저가 존재하지 않습니다.", false)
             }
+
             let is_exist_reservation = await pool.query(`SELECT * FROM ${table_name} WHERE date=? AND time=? AND shop_id=${shop_id}`,[date, time]);
             if(is_exist_reservation?.result.length > 0){
                 return response(req, res, -100, "이미 예약된 시간입니다.", false)
