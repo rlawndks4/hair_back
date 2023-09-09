@@ -13,7 +13,7 @@ const userCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
 
-            const { is_sales_man, level } = req.query;
+            const { is_sales_man, level, shop_id } = req.query;
 
             let columns = [
                 `${table_name}.*`,
@@ -22,12 +22,16 @@ const userCtrl = {
             ]
             let sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM ${table_name} `;
             sql += ` LEFT JOIN shops ON ${table_name}.shop_id=shops.id `
+            sql += ` WHERE 1=1 `
             if (!level) {
-                sql += ` WHERE ${table_name}.level=0 `;
+                sql += ` AND ${table_name}.level=0 `;
             } else {
-                sql += ` WHERE ${table_name}.level=${level} `;
+                sql += ` AND ${table_name}.level=${level} `;
             }
-
+            if(shop_id){
+                sql += ` AND ${table_name}.shop_id=${shop_id} `;
+            }
+            console.log(sql)
             let data = await getSelectQuery(sql, columns, req.query);
 
             return response(req, res, 100, "success", data);

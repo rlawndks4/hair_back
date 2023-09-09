@@ -16,7 +16,7 @@ const postCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            const { type, is_mine } = req.query;
+            const { type, is_mine, shop_id } = req.query;
             let columns = [
                 `${table_name}.*`,
                 `users.user_name`,
@@ -32,6 +32,9 @@ const postCtrl = {
             }
             if(is_mine){
                 sql += ` AND ${table_name}.user_id=${decode_user?.id} `;
+            }
+            if(shop_id){
+                sql += ` AND ${table_name}.shop_id=${shop_id} `;
             }
             let data = await getSelectQuery(sql, columns, req.query);
 

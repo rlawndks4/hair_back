@@ -1,13 +1,15 @@
 'use strict';
 import { pool } from "../config/db.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
-import { checkLevel, makeUserToken, response } from "../utils.js/util.js";
+import { checkLevel, makeUserToken, response, settingFiles } from "../utils.js/util.js";
 import 'dotenv/config';
 
 const uploadCtrl = {
     single: async (req, res, next) => {
         try {
 
+            let files = settingFiles(req.files);
+            console.log(req.files)
             return response(req, res, 100, "success", {});
         } catch (err) {
             console.log(err)

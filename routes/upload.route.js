@@ -5,7 +5,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 router
     .route('/single')
-    .get(uploadCtrl.single)
+    .post(uploadCtrl.single)
 router
     .route('/multiple')
     .post(uploadCtrl.muiltiple)
