@@ -24,7 +24,7 @@ const pointCtrl = {
             let sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM ${table_name} `;
             sql += ` LEFT JOIN users ON ${table_name}.user_id=users.id `;
             sql += ` LEFT JOIN users AS giver ON ${table_name}.giver_id=giver.id `;
-            if(decode_user.level < 40){
+            if(decode_user.level < 10){
                 sql += ` WHERE ${table_name}.user_id=${decode_user.id} `;
             }
             let data = await getSelectQuery(sql, columns, req.query);

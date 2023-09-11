@@ -67,6 +67,8 @@ const userCtrl = {
             let {
                 user_name, user_pw, nickname, level=0, phone_num, profile_img, note, shop_id=0
             } = req.body;
+            console.log('123123')
+            console.log(req.body)
             if (level > decode_user?.level) {
                 return lowLevelException(req, res);
             }
@@ -102,7 +104,7 @@ const userCtrl = {
             if(!(decode_user?.level >=40)){
                 return lowLevelException(req, res);
             }
-            let is_exist_user = await pool.query(`SELECT * FROM ${table_name} WHERE user_name=? `, [user_name]);
+            let is_exist_user = await pool.query(`SELECT * FROM ${table_name} WHERE user_name=? AND id!=${id}`, [user_name]);
             if (is_exist_user?.result.length > 0) {
                 return response(req, res, -100, "유저아이디가 이미 존재합니다.", false)
             }
