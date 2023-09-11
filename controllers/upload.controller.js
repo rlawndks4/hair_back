@@ -9,8 +9,9 @@ const uploadCtrl = {
         try {
 
             let files = settingFiles(req.files);
-            console.log(req.files)
-            return response(req, res, 100, "success", {});
+            return response(req, res, 100, "success", {
+                url: files?.post_img
+            });
         } catch (err) {
             console.log(err)
             return response(req, res, -200, "서버 에러 발생", false)
@@ -20,7 +21,7 @@ const uploadCtrl = {
     },
     muiltiple: async (req, res, next) => {
         try {
-            
+
             return response(req, res, 100, "success", []);
         } catch (err) {
             console.log(err)
