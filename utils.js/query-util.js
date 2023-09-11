@@ -36,7 +36,7 @@ export const deleteQuery = async (table, where_obj) => {
     for (var i = 0; i < keys.length; i++) {
         where_list.push(` ${keys[i]}=${where_obj[keys[i]]} `);
     }
-    let result = await pool.query(`UPDATE ${table} SET is_delete=1 WHERE ${where_list.join('AND')} `);
+    let result = await pool.query(`DELETE FROM ${table} WHERE ${where_list.join('AND')} `);
     return result;
 }
 export const updateQuery = async (table, obj, id) => {
