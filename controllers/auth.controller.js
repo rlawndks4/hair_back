@@ -69,6 +69,7 @@ const authCtrl = {
                 phone_num,
                 profile_img,
             } = req.body;
+            console.log(req.body)
             if (!user_pw) {
                 return response(req, res, -100, "비밀번호를 입력해 주세요.", {});
             }
