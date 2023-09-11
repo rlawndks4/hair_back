@@ -39,7 +39,7 @@ const authCtrl = {
                 phone_num: user.phone_num,
                 profile_img: user.profile_img,
             })
-            res.cookie("token", token, {
+            await res.cookie("token", token, {
                 httpOnly: true,
                 maxAge: (60 * 60 * 1000) * 3,
                 //sameSite: 'none', 
@@ -119,8 +119,7 @@ const authCtrl = {
     checkSign: async (req, res, next) => {
         try {
             let is_manager = await checkIsManagerUrl(req);
-            const decode_user = checkLevel(req.cookies.token, is_manager ? 1 : 0);
-
+            const decode_user = checkLevel(req.cookies.token, 0);
 
             return response(req, res, 100, "success", decode_user)
         } catch (err) {

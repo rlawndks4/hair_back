@@ -51,6 +51,9 @@ const shopCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
+            console.log(decode_user)
+            console.log(req.files)
+            console.log(req.body)
             if(decode_user.level < 40){
                 return  lowLevelException(req, res);
             }
