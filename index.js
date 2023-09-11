@@ -35,8 +35,8 @@ app.get('/', (req, res) => {
 });
 
 app.use((req, res, next) => {
-
-  return next(err);  const err = new APIError('API not found', httpStatus.NOT_FOUND);
+  const err = new APIError('API not found', httpStatus.NOT_FOUND);
+  return next(err);
 });
 let server = undefined
 const HTTP_PORT = 8001;
