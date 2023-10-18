@@ -87,7 +87,6 @@ const authCtrl = {
                 return response(req, res, -100, "학교인증중 에러", {})
             }
             console.log(is_user_student?.data);
-            return;
             let pw_data = await createHashedPassword(user_pw);
             if (!is_manager) {
                 if (level > 0) {
