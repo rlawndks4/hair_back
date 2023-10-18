@@ -1,4 +1,5 @@
 'use strict';
+import axios from "axios";
 import { pool } from "../config/db.js";
 import { checkIsManagerUrl, returnMoment } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
@@ -69,7 +70,6 @@ const authCtrl = {
                 phone_num,
                 profile_img,
             } = req.body;
-            console.log(req.body)
             if (!user_pw) {
                 return response(req, res, -100, "비밀번호를 입력해 주세요.", {});
             }
@@ -77,6 +77,14 @@ const authCtrl = {
             if (is_exist_user?.result.length > 0) {
                 return response(req, res, -100, "유저아이디가 이미 존재합니다.", false)
             }
+            let is_user_student = await axios.post('https://univcert.com/api/v1/certify', {
+                key: '4e5978db-a6d4-4b7f-ae95-6b12d10a5ca5',
+                email: user_name,
+                univName: '서울과학기술대학교',
+                univ_check: true,
+            });
+            console.log(is_user_student)
+            return;
             let pw_data = await createHashedPassword(user_pw);
             if (!is_manager) {
                 if (level > 0) {
@@ -134,11 +142,11 @@ const authCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, is_manager ? 1 : 0);
             const {
-               nickname, phone_num, profile_img
+                nickname, phone_num, profile_img
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
-                nickname, phone_num, profile_img 
+                nickname, phone_num, profile_img
             };
             obj = { ...obj, ...files };
             let result = await updateQuery(`users`, obj, decode_user?.id);
