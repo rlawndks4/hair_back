@@ -105,8 +105,8 @@ const authCtrl = {
             let result = await insertQuery('users', obj);
             return response(req, res, 100, "success", {})
         } catch (err) {
-            console.log(err?.response?.data)
-            return response(req, res, -200, err?.message || "서버 에러 발생", false)
+            console.log(err?.response?.data?.message)
+            return response(req, res, -200, err?.response?.data?.message || err?.message || "서버 에러 발생", false)
         } finally {
 
         }
