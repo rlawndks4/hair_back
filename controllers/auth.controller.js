@@ -83,7 +83,10 @@ const authCtrl = {
                 univName: '서울과학기술대학교',
                 univ_check: true,
             });
-            console.log(is_user_student)
+            if(!is_user_student?.data?.success){
+                return response(req, res, -100, "학교인증중 에러", {})
+            }
+            console.log(is_user_student?.data);
             return;
             let pw_data = await createHashedPassword(user_pw);
             if (!is_manager) {
