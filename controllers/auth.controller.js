@@ -80,7 +80,7 @@ const authCtrl = {
             let is_user_student = await axios.post('https://univcert.com/api/v1/certify', {
                 key: '4e5978db-a6d4-4b7f-ae95-6b12d10a5ca5',
                 email: user_name,
-                univName: '서울과학기술대학교',
+                univName: '서경대학교',
                 univ_check: true,
             });
             if(!is_user_student?.data?.success){
