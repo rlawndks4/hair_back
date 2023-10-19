@@ -6,6 +6,7 @@ import pointRoutes from './point.route.js';
 import postRoutes from './post.route.js';
 import reservationRoute from './reservation.route.js';
 import shopRoute from './shop.route.js';
+import alarmRoute from './alarm.route.js';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
@@ -18,6 +19,7 @@ router.use('/points', pointRoutes);
 router.use('/posts', postRoutes);
 router.use('/reservations', reservationRoute);
 router.use('/shops', shopRoute);
+router.use('/alarms', alarmRoute);
 
 //auth
 router.use('/auth', authRoutes);

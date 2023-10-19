@@ -1,36 +1,32 @@
 'use strict';
-import db, { pool } from "../config/db.js";
+import { pool } from "../config/db.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../utils.js/query-util.js";
-import { checkDns, checkLevel, isItemBrandIdSameDnsId, response, settingFiles } from "../utils.js/util.js";
+import { checkDns, checkLevel, response, settingFiles } from "../utils.js/util.js";
 import 'dotenv/config';
 
-const table_name = 'reservations';
+const table_name = 'alarms';
 
-const reservationCtrl = {
+const alarmCtrl = {
     list: async (req, res, next) => {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
+            
+            const { } = req.query;
 
-            const { is_mine, date } = req.query;
-            console.log(req.query)
             let columns = [
                 `${table_name}.*`,
                 `users.user_name`,
                 `users.nickname`,
-                `shops.name AS shop_name`,
             ]
             let sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM ${table_name} `;
             sql += ` LEFT JOIN users ON ${table_name}.user_id=users.id `;
-            sql += ` LEFT JOIN shops ON ${table_name}.shop_id=shops.id `;
-            sql += ` WHERE 1=1 `
-            if (decode_user.level < 40) {
-                sql += ` AND ${table_name}.user_id=${decode_user.id} `;
+
+            if(decode_user.level < 10){
+                sql += ` WHERE ${table_name}.user_id=${decode_user.id} `;
             }
-            if (date) {
-                sql += ` AND ${table_name}.date=${date} `;
-            }
+
             let data = await getSelectQuery(sql, columns, req.query);
 
             return response(req, res, 100, "success", data);
@@ -45,7 +41,7 @@ const reservationCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-
+           
             const { id } = req.params;
             let sql = `SELECT ${table_name}.*, users.user_name FROM ${table_name} `;
             sql += ` LEFT JOIN users ON ${table_name}.user_id=users.id `;
@@ -60,55 +56,37 @@ const reservationCtrl = {
 
         }
     },
-    create: async (req, res, next) => {
+   create: async (req, res, next) => {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            let {
-                date,
-                time,
-                user_name,
-                shop_id,
-                note,
-            } = req.body;
-            console.log(req.body)
-            date = date.replaceAll('-', '')
-
-            let user = await pool.query(`SELECT * FROM users WHERE user_name=? `, [user_name]);
-            user = user?.result[0];
-            if (!user) {
-                return response(req, res, -100, "유저가 존재하지 않습니다.", false)
+            if(decode_user.level < 10){
+                return lowLevelException(req, res);
             }
-
-            let is_exist_reservation = await pool.query(`SELECT * FROM ${table_name} WHERE date=? AND time=? AND shop_id=${shop_id}`, [date, time]);
-            if (is_exist_reservation?.result.length > 0) {
-                return response(req, res, -100, "이미 예약된 시간입니다.", false)
+            const {
+                user_name="",
+                title,
+                content,
+                link,
+            } = req.body;
+            let user = await pool.query(`SELECT * FROM users WHERE user_name=? `,[user_name]);
+            user = user?.result[0];
+            if(!user){
+                return response(req, res, -100, "유저가 존재하지 않습니다.", false)
             }
             let files = settingFiles(req.files);
             let obj = {
-                date,
-                time,
-                shop_id,
+                title,
+                content,
+                link,
                 user_id: user?.id,
-                note
             };
-
             obj = { ...obj, ...files };
-            await db.beginTransaction();
-
             let result = await insertQuery(`${table_name}`, obj);
-            let result2 = await insertQuery(`alarms`, {
-                user_id: user?.id,
-                title: '미용실 예약이 완료되었습니다.',
-                content: '상세한 정보를 확인해 보세요.',
-                link: '/user/my-page/?type=2',
-            });
 
-            await db.commit();
             return response(req, res, 100, "success", {})
         } catch (err) {
             console.log(err)
-            await db.rollback();
             return response(req, res, -200, "서버 에러 발생", false)
         } finally {
 
@@ -118,39 +96,30 @@ const reservationCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-
-            let {
-                date,
-                time,
-                user_name,
-                shop_id,
-                note,
+            if(decode_user.level < 10){
+                return lowLevelException(req, res);
+            }
+            
+            const {
+                user_name="",
+                title,
+                content,
+                link,
                 id
             } = req.body;
-            date = date.replaceAll('-', '')
-            if (is_manager) {
-
-            }
-            let user = await pool.query(`SELECT * FROM users WHERE user_name=? `, [user_name]);
+            let user = await pool.query(`SELECT * FROM users WHERE user_name=? `,[user_name]);
             user = user?.result[0];
-            if (!user) {
+            if(!user){
                 return response(req, res, -100, "유저가 존재하지 않습니다.", false)
-            }
-            let is_exist_reservation = await pool.query(`SELECt * FROM ${table_name} WHERE date=? AND time=? AND user_id!=${user?.id} AND is_delete=0 `, [date, time]);
-            if (is_exist_reservation?.result.length > 0) {
-                return response(req, res, -100, "이미 예약된 시간입니다.", false)
             }
             let files = settingFiles(req.files);
             let obj = {
-                date,
-                time,
-                shop_id,
+                title,
+                content,
+                link,
                 user_id: user?.id,
-                note
             };
-
             obj = { ...obj, ...files };
-
             let result = await updateQuery(`${table_name}`, obj, id);
 
             return response(req, res, 100, "success", {})
@@ -165,11 +134,7 @@ const reservationCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            if (decode_user.level < 40) {
-                if (data?.user_id != id) {
-                    return lowLevelException(req, res);
-                }
-            }
+            
             const { id } = req.params;
             let result = await deleteQuery(`${table_name}`, {
                 id
@@ -184,4 +149,4 @@ const reservationCtrl = {
     },
 };
 
-export default reservationCtrl;
+export default alarmCtrl;

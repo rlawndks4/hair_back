@@ -7,6 +7,7 @@ import postCtrl from './post.controller.js';
 import reservationCtrl from './reservation.controller.js';
 import shopCtrl from './shop.controller.js';
 import pointCtrl from './point.controller.js';
+import alarmCtrl from './alarm.controller.js';
 
 export {
     userCtrl,
@@ -16,4 +17,5 @@ export {
     reservationCtrl,
     shopCtrl,
     pointCtrl,
+    alarmCtrl,
 };

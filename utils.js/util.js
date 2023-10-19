@@ -123,7 +123,7 @@ export const response = async (req, res, code, message, data) => { //응답 포�
     const decode_user = checkLevel(req.cookies.token, 0)
     const decode_dns = checkLevel(req.cookies.dns, 0)
     let save_log = await logRequestResponse(req, resDict, decode_user, decode_dns);
-
+    
     res.send(resDict);
 }
 export const lowLevelException = (req, res) => {
