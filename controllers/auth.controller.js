@@ -42,7 +42,7 @@ const authCtrl = {
             })
             await res.cookie("token", token, {
                 httpOnly: true,
-                maxAge: (60 * 60 * 1000) * 3,
+                maxAge: (60 * 60 * 1000) * 24,
                 //sameSite: 'none', 
                 //secure: true 
             });
@@ -83,7 +83,7 @@ const authCtrl = {
                 univName: '서경대학교',
                 univ_check: true,
             });
-            if(!is_user_student?.data?.success){
+            if (!is_user_student?.data?.success) {
                 return response(req, res, -100, "학교인증중 에러", {})
             }
             console.log(is_user_student?.data);
