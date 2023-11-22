@@ -22,18 +22,20 @@ const postCtrl = {
                 `users.user_name`,
                 `users.nickname`,
                 `shops.name AS shop_name`,
+                `teachers.nickname AS teacher_nickname`,
             ]
             let sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM ${table_name} `;
             sql += ` LEFT JOIN users ON ${table_name}.user_id=users.id `;
+            sql += ` LEFT JOIN users AS teachers ON ${table_name}.teacher_id=teachers.id `;
             sql += ` LEFT JOIN shops ON ${table_name}.shop_id=shops.id `;
             sql += ` WHERE 1=1 `
-            if(type){
+            if (type) {
                 sql += ` AND ${table_name}.type=${type} `;
             }
-            if(is_mine){
+            if (is_mine) {
                 sql += ` AND ${table_name}.user_id=${decode_user?.id} `;
             }
-            if(shop_id){
+            if (shop_id) {
                 sql += ` AND ${table_name}.shop_id=${shop_id} `;
             }
             let data = await getSelectQuery(sql, columns, req.query);
@@ -69,7 +71,8 @@ const postCtrl = {
                 title,
                 note,
                 shop_id,
-                type='0',
+                type = '0',
+                teacher_id,
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
@@ -77,6 +80,7 @@ const postCtrl = {
                 note,
                 shop_id,
                 type,
+                teacher_id,
                 user_id: decode_user?.id
             };
             obj = { ...obj, ...files };
@@ -95,12 +99,13 @@ const postCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
+
             const {
                 title,
                 note,
                 shop_id,
-                type='0',
+                teacher_id,
+                type = '0',
                 id,
             } = req.body;
             let files = settingFiles(req.files);
@@ -108,6 +113,7 @@ const postCtrl = {
                 title,
                 note,
                 shop_id,
+                teacher_id,
                 type,
                 user_id: decode_user?.id
             };
@@ -127,7 +133,7 @@ const postCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
+
             const { id } = req.params;
             let result = await deleteQuery(`${table_name}`, {
                 id

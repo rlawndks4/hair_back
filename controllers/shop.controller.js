@@ -12,7 +12,7 @@ const shopCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
+
             const { } = req.query;
 
             let columns = [
@@ -34,11 +34,13 @@ const shopCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            
+
             const { id } = req.params;
             let data = await pool.query(`SELECT * FROM ${table_name} WHERE id=${id}`)
             data = data?.result[0];
-            
+            let teachers = await pool.query(`SELECT * FROM users WHERE level=10 AND shop_id=${id}`);
+            teachers = teachers?.result;
+            data['teachers'] = teachers;
             return response(req, res, 100, "success", data)
         } catch (err) {
             console.log(err)
@@ -54,11 +56,11 @@ const shopCtrl = {
             console.log(decode_user)
             console.log(req.files)
             console.log(req.body)
-            if(decode_user.level < 40){
-                return  lowLevelException(req, res);
+            if (decode_user.level < 40) {
+                return lowLevelException(req, res);
             }
             const {
-                name, addr, addr_detail="", note
+                name, addr, addr_detail = "", note
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
@@ -81,12 +83,12 @@ const shopCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            if(decode_user.level < 40){
-                return  lowLevelException(req, res);
+            if (decode_user.level < 40) {
+                return lowLevelException(req, res);
             }
             const {
                 id,
-                name, addr, addr_detail="", note
+                name, addr, addr_detail = "", note
             } = req.body;
             let files = settingFiles(req.files);
             let obj = {
@@ -108,8 +110,8 @@ const shopCtrl = {
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
-            if(decode_user.level < 40){
-                return  lowLevelException(req, res);
+            if (decode_user.level < 40) {
+                return lowLevelException(req, res);
             }
             const { id } = req.params;
             let result = await deleteQuery(`${table_name}`, {
